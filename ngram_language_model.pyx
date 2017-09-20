@@ -21,11 +21,11 @@ cdef extern from "ngram_language_model_cpp.h" namespace "language":
 
 cdef class NgramLanguageModel:
   cdef NgramLanguageModelCPP* _nglm
-  def __cinit__(self, samples, convert_to_int, int n, int m):
+  def __cinit__(self, samples, int n, int m):
     self._nglm = new NgramLanguageModelCPP(n, m)
     cdef vector[int] v
-    for i,sample in enumerate(samples):
-      v = np.ascontiguousarray(convert_to_int(sample), dtype=DTYPE)
+    for sample in samples:
+      v = np.ascontiguousarray(sample, dtype=DTYPE)
       self._nglm.add_sample(v)
       
 
@@ -43,8 +43,8 @@ cdef class NgramLanguageModel:
         answer[i,j] = v[i][j]
     return answer
 
-  def log_likelihood(self, ngram, convert_to_int):
-    cdef vector[int] v = np.ascontiguousarray(convert_to_int(ngram), dtype=DTYPE)
+  def log_likelihood(self, ngram):
+    cdef vector[int] v = np.ascontiguousarray(ngram, dtype=DTYPE)
     return self._nglm.log_likelihood(v)
 
   def js_with(self, NgramLanguageModel other, int ngram_length):
